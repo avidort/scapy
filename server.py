@@ -1,8 +1,12 @@
 import SocketServer
 import thread
-import time
-
 queue = ''
+
+
+class CommandHandler:
+    def test(self, args):
+        print("actual test")
+        print args
 
 
 class ConnectionHandler(SocketServer.BaseRequestHandler):
@@ -22,11 +26,24 @@ class ConnectionHandler(SocketServer.BaseRequestHandler):
                 queue = ''
 
 
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+def main():
+    global queue
+    HOST, PORT = "localhost", 9999  # todo read config
     server = SocketServer.TCPServer((HOST, PORT), ConnectionHandler)
     thread.start_new_thread(server.serve_forever, ())
-
     while True:
-        queue = raw_input()
-        print queue
+        cmd = raw_input()
+        args = cmd.split(' ')
+        if len(args) > 1:
+            cmd = args[0]
+            del args[0]
+        else:
+            args = []
+
+        try:
+            eval('CommandHandler().{0}("{1}")'.format(cmd, args))
+        except AttributeError:
+            print "Unknown command: {0}".format(cmd)
+
+if __name__ == "__main__":
+    main()
