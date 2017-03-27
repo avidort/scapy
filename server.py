@@ -16,11 +16,12 @@ def msg_all_clients(message):
 
 
 class CommandHandler():
-    def test(self, args):
+    def test(self, args, raw):
         print("actual test")
         print args
+        print raw
 
-    def msg(self, args):
+    def msg(self, args, raw):
         print "sending: " + args[0]
         msg_all_clients(args[0])
 
@@ -52,15 +53,20 @@ def main():
     thread.start_new_thread(server.serve_forever, ())
     while True:
         cmd = raw_input()
-        args = cmd.split(' ')
-        if len(args) > 1:
-            cmd = args[0]
-            del args[0]
+
+        if cmd[0] == ' ':
+            cmd = cmd[1:]
+
+        if cmd.count(' '):
+            raw = cmd[cmd.find(' ') + 1:]
+            args = raw.split(' ')
+            cmd = cmd[:cmd.find(' ')]
         else:
-            args = []
+            raw = args = None
 
         try:
-            eval('CommandHandler().{0}({1})'.format(cmd, args))
+            getattr(CommandHandler(), cmd)(args, raw)
+            # eval('CommandHandler().{0}({1}, "{2}")'.format(cmd, args, raw))
         except AttributeError:
             print "Unknown command: {0}".format(cmd)
 
