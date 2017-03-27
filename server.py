@@ -1,18 +1,18 @@
 import SocketServer
 import thread
 
-queue = ''
-clients = []
+import client_model as cm
+
+clients = {}
 
 
-def add_client(name, ipaddr):
-    clients.append({'name': name, 'ipaddr': ipaddr, 'queue': []})
-    return len(clients) - 1
+class ClientManager():
+    def add_client(self, name, ipaddr):
+        clients[ipaddr] = cm.ClientModel(name, ipaddr)
 
-
-def msg_all_clients(message):
-    for client in clients:
-        client['queue'].append(message)
+    def msg_all_clients(self, message):
+        for client in clients:
+            clients[client].push_message(message)
 
 
 class CommandHandler():
@@ -23,28 +23,29 @@ class CommandHandler():
 
     def msg(self, args, raw):
         print "sending: " + args[0]
-        msg_all_clients(args[0])
+        ClientManager().msg_all_clients(args[0])
 
 
 class ConnectionHandler(SocketServer.BaseRequestHandler):
     def handle(self):
-        global queue, clients
+        global clients
 
         self.data = self.request.recv(1024).strip()
-        print "incoming connection from {}".format(self.client_address[0])
+        ip = self.client_address[0]
+        print "Incoming connection from {}".format(ip)
 
-        client = add_client('my client', self.client_address[0])
+        ClientManager().add_client('my client', ip)
 
         # todo flow: validate -> reject and close connection if bad -> listen for orders
 
         while True:
-            for task in clients[client]['queue']:
-                if task:
-                    print task
-                    self.request.sendall(task)
-                    if task == 'close':
+            for message in clients[ip].get_messages():
+                if message:
+                    clients[ip].pop_message(message)
+                    print message
+                    self.request.sendall(message)
+                    if message == 'close':
                         break
-                    clients[client]['queue'].remove(task)
 
 
 def main():
@@ -53,6 +54,9 @@ def main():
     thread.start_new_thread(server.serve_forever, ())
     while True:
         cmd = raw_input()
+
+        if not cmd:
+            continue
 
         if cmd[0] == ' ':
             cmd = cmd[1:]
