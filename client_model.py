@@ -1,7 +1,7 @@
 class ClientModel:
-    def __init__(self, name, ip_address):
-        self.__name = name
+    def __init__(self, ip_address, name):
         self.__ip_address = ip_address
+        self.__name = name
         self.__message_queue = []
 
     def push_message(self, message):

@@ -1,40 +1,29 @@
-import SocketServer
 import thread
-
-import client_model as cm
-
-clients = {}
-
-
-class ClientManager():
-    def add_client(self, name, ipaddr):
-        clients[ipaddr] = cm.ClientModel(name, ipaddr)
-
-    def msg_all_clients(self, message):
-        for client in clients:
-            clients[client].push_message(message)
+import SocketServer
+import client_factory as client
+clients = client.client_registry
 
 
-class CommandHandler():
-    def test(self, args, raw):
+# noinspection PyClassHasNoInit
+class CommandHandler:
+    @staticmethod
+    def test(args, raw):
         print("actual test")
         print args
         print raw
 
-    def msg(self, args, raw):
-        print "sending: " + args[0]
-        ClientManager().msg_all_clients(args[0])
+    @staticmethod
+    def msg(args, raw):
+        print "sending: " + raw
+        client.message_all(raw)
 
 
 class ConnectionHandler(SocketServer.BaseRequestHandler):
     def handle(self):
-        global clients
+        ip, data = self.client_address[0], self.request.recv(1024).strip()
+        print "Incoming connection from {0}: {1}".format(ip, data)
 
-        self.data = self.request.recv(1024).strip()
-        ip = self.client_address[0]
-        print "Incoming connection from {}".format(ip)
-
-        ClientManager().add_client('my client', ip)
+        client.add(ip, 'my client')
 
         # todo flow: validate -> reject and close connection if bad -> listen for orders
 
@@ -72,7 +61,7 @@ def main():
             getattr(CommandHandler(), cmd)(args, raw)
             # eval('CommandHandler().{0}({1}, "{2}")'.format(cmd, args, raw))
         except AttributeError:
-            print "Unknown command: {0}".format(cmd)
+            print 'Unknown command: {0}'.format(cmd)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
