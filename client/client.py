@@ -1,4 +1,16 @@
+import json
 import socket
+
+
+def interpret_command(cmd):
+    try:
+        data = json.loads(cmd)
+        cmd, args = data['command'], data['args']
+
+        # todo move command handling outside
+
+    except ValueError:
+        return
 
 
 def maintain_connection(name):
@@ -11,6 +23,7 @@ def maintain_connection(name):
         received = sock.recv(1024)
         if received:
             print received
+            interpret_command(received)
 
             if received == 'close':
                 sock.close()
