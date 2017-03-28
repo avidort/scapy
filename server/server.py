@@ -22,9 +22,10 @@ class CommandHandler:
 class ConnectionHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         ip, data = self.client_address[0], self.request.recv(1024).strip()
+        client_name = data[data.find(' ') + 1:]
         print 'Incoming connection from {0}: {1}'.format(ip, data)
 
-        client.add(ip, 'my client')
+        client.add(ip, client_name)
 
         # todo flow: validate -> reject and close connection if bad -> listen for orders
 
