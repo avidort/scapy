@@ -1,5 +1,6 @@
 import thread
 import SocketServer
+import cmd_proc
 import client_factory as client
 clients = client.client_registry
 
@@ -46,29 +47,8 @@ class ConnectionHandler(SocketServer.BaseRequestHandler):
 def main():
     HOST, PORT = "localhost", 9999  # todo read config
     server = SocketServer.TCPServer((HOST, PORT), ConnectionHandler)
-    server.timeout = 5
     thread.start_new_thread(server.serve_forever, ())
-    while True:
-        cmd = raw_input()
-
-        if not cmd:
-            continue
-
-        if cmd[0] == ' ':
-            cmd = cmd[1:]
-
-        if cmd.count(' '):
-            raw = cmd[cmd.find(' ') + 1:]
-            args = raw.split(' ')
-            cmd = cmd[:cmd.find(' ')]
-        else:
-            raw = args = None
-
-        try:
-            getattr(CommandHandler(), cmd)(args, raw)
-            # eval('CommandHandler().{0}({1}, "{2}")'.format(cmd, args, raw))
-        except AttributeError:
-            print 'Unknown command: {0}'.format(cmd)
+    cmd_proc.command_processor(CommandHandler)
 
 if __name__ == '__main__':
     main()
