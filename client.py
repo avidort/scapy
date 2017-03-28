@@ -19,7 +19,7 @@ while True:
 
         if received == 'close':
             sock.close()
-            break;
+            break
 
 sock.close()
 

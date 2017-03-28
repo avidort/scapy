@@ -21,25 +21,32 @@ class CommandHandler:
 class ConnectionHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         ip, data = self.client_address[0], self.request.recv(1024).strip()
-        print "Incoming connection from {0}: {1}".format(ip, data)
+        print 'Incoming connection from {0}: {1}'.format(ip, data)
 
         client.add(ip, 'my client')
 
         # todo flow: validate -> reject and close connection if bad -> listen for orders
 
-        while True:
+        connection = 'active'
+        while connection == 'active':
             for message in clients[ip].get_messages():
                 if message:
-                    clients[ip].pop_message(message)
-                    print message
-                    self.request.sendall(message)
-                    if message == 'close':
-                        break
+                    try:
+                        self.request.sendall(message)
+                        clients[ip].pop_message(message)
+                        if message == 'close':
+                            connection = 'closed'
+                    except SocketServer.socket.error:
+                        connection = 'timeout'
+
+        client.remove(ip)
+        print 'Connection closed from {0} ({1})'.format(ip, connection)
 
 
 def main():
     HOST, PORT = "localhost", 9999  # todo read config
     server = SocketServer.TCPServer((HOST, PORT), ConnectionHandler)
+    server.timeout = 5
     thread.start_new_thread(server.serve_forever, ())
     while True:
         cmd = raw_input()
