@@ -9,13 +9,13 @@ clients = client.client_registry
 class CommandHandler:
     @staticmethod
     def test(args, raw):
-        print("actual test")
+        print("[debug] actual test")
         print args
         print raw
 
     @staticmethod
     def msg(args, raw):
-        print "sending: " + raw
+        print "[debug] sending: " + raw
         client.message_all(raw)
 
 

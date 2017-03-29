@@ -34,7 +34,7 @@ def maintain_connection(name):
 
 def main():
     # todo validate name, config, etc
-    maintain_connection('test')
+    maintain_connection('avidor')
 
 if __name__ == '__main__':
     main()

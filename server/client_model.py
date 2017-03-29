@@ -1,11 +1,11 @@
 class ClientModel:
     def __init__(self, ip_address, name):
-        self.__ip_address = ip_address
-        self.__name = name
+        self.ip_address = ip_address
+        self.name = name
         self.__message_queue = []
 
     def push_message(self, message):
-        print 'pushing ' + message
+        print '[debug] pushing ' + message
         self.__message_queue.append(message)
 
     def pop_message(self, message):

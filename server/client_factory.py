@@ -11,6 +11,7 @@ def remove(ip_address):
 
 
 def message(ip_address, text):
+    print "[debug] sending to {0}: {1}".format(client_registry[ip_address].name, text)
     client_registry[ip_address].push_message(text)
 
 
