@@ -5,15 +5,7 @@ def command_processor(command_handler):
         if not cmd:
             continue
 
-        if cmd[0] == ' ':
-            cmd = cmd[1:]
-
-        if cmd.count(' '):
-            raw = cmd[cmd.find(' ') + 1:]
-            args = raw.split(' ')
-            cmd = cmd[:cmd.find(' ')]
-        else:
-            raw = args = None
+        [cmd, args, raw] = normalize(cmd)
 
         try:
             getattr(command_handler, cmd)(args, raw)
@@ -21,3 +13,16 @@ def command_processor(command_handler):
         except AttributeError:
             print 'Unknown command: {0}'.format(cmd)
 
+
+def normalize(cmd):
+    raw = args = None
+
+    if cmd[0] == ' ':
+        cmd = cmd[1:]
+
+    if cmd.count(' '):
+        raw = cmd[cmd.find(' ') + 1:]
+        args = raw.split(' ')
+        cmd = cmd[:cmd.find(' ')]
+
+    return [cmd, args, raw]

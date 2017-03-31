@@ -1,3 +1,4 @@
+import json
 import thread
 import SocketServer
 import cmd_proc
@@ -17,6 +18,12 @@ class CommandHandler:
     def msg(args, raw):
         print "[debug] sending: " + raw
         client.message_all(raw)
+
+    @staticmethod
+    def cmd(args, raw):
+        [cmd, args, raw] = cmd_proc.normalize(raw)
+        print "[debug] sending: {0}, {1}, {2}".format(cmd, args, raw)
+        client.message_all(json.dumps({'command': cmd, 'args': args}))
 
 
 class ConnectionHandler(SocketServer.BaseRequestHandler):

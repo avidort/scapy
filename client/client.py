@@ -7,9 +7,10 @@ def interpret_command(cmd):
         data = json.loads(cmd)
         cmd, args = data['command'], data['args']
 
+        print cmd, args
         # todo move command handling outside
 
-    except ValueError:
+    except:
         return
 
 
