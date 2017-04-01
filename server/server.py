@@ -10,7 +10,7 @@ clients = client.client_registry
 class CommandHandler:
     @staticmethod
     def test(args, raw):
-        print("[debug] actual test")
+        print("[debug] actual test @ server")
         print args
         print raw
 
@@ -23,7 +23,7 @@ class CommandHandler:
     def cmd(args, raw):
         [cmd, args, raw] = cmd_proc.normalize(raw)
         print "[debug] sending: {0}, {1}, {2}".format(cmd, args, raw)
-        client.message_all(json.dumps({'command': cmd, 'args': args}))
+        client.message_all(json.dumps({'command': cmd, 'args': args, 'raw': raw}))
 
 
 class ConnectionHandler(SocketServer.BaseRequestHandler):
@@ -34,7 +34,7 @@ class ConnectionHandler(SocketServer.BaseRequestHandler):
 
         client.add(ip, client_name)
 
-        # todo flow: validate -> reject and close connection if bad -> listen for orders
+        # todo validate connection against config when there's one
 
         connection = 'active'
         while connection == 'active':

@@ -2,13 +2,20 @@ import json
 import socket
 
 
-def interpret_command(cmd):
+# noinspection PyClassHasNoInit
+class CommandHandler:
+    @staticmethod
+    def test(args, raw):
+        print("[debug] actual test @ client")
+        print args
+        print raw
+
+
+def command_processor(cmd):
     try:
         data = json.loads(cmd)
-        cmd, args = data['command'], data['args']
-
-        print cmd, args
-        # todo move command handling outside
+        cmd, args, raw = data['command'], data['args'], data['raw']
+        getattr(CommandHandler, cmd)(args, raw)
 
     except:
         return
@@ -23,8 +30,8 @@ def maintain_connection(name):
     while True:
         received = sock.recv(1024)
         if received:
-            print received
-            interpret_command(received)
+            print "received: " + received
+            command_processor(received)
 
             if received == 'close':
                 sock.close()
