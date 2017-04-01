@@ -1,4 +1,4 @@
-def command_processor(command_handler):
+def processor(command_handler):
     while True:
         cmd = raw_input()
 
